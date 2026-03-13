@@ -1,0 +1,266 @@
+```html id="fireworks_bday"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Suma</title>
+<style>
+/* General body */
+body{
+    margin:0;
+    padding:0;
+    font-family: Arial, sans-serif;
+    text-align:center;
+    background: linear-gradient(120deg,#ff9a9e,#fad0c4);
+    color:white;
+    overflow:hidden;
+}
+
+/* Headings */
+h1{
+    font-size:5vw;
+    margin-top:5vh;
+    animation:glow 2s infinite alternate;
+    position: relative;
+    z-index:10;
+}
+h2{
+    font-size:3vw;
+    z-index:10;
+    position: relative;
+}
+
+/* Glow animation */
+@keyframes glow{
+    0%{text-shadow:0 0 10px white;}
+    100%{text-shadow:0 0 30px yellow;}
+}
+
+/* Suma photo */
+img.main-photo{
+    width:50vw;
+    max-width:260px;
+    border-radius:20px;
+    margin-top:2vh;
+    box-shadow:0 0 20px black;
+    position: relative;
+    z-index:10;
+}
+
+/* Paragraph */
+p{
+    font-size:4vw;
+    max-width:90%;
+    margin:auto;
+    margin-top:2vh;
+    position: relative;
+    z-index:10;
+}
+
+/* Button */
+button{
+    margin-top:2vh;
+    padding:12px 30px;
+    font-size:4vw;
+    border:none;
+    border-radius:10px;
+    background:#ff4d6d;
+    color:white;
+    cursor:pointer;
+    position: relative;
+    z-index:10;
+}
+
+/* Secret message */
+#secret{
+    display:none;
+    margin-top:2vh;
+    font-size:4vw;
+    position: relative;
+    z-index:10;
+}
+
+/* Balloons */
+.balloon{
+    position:absolute;
+    bottom:-150px;
+    width:12vw;
+    max-width:70px;
+    z-index:1;
+    transition: transform 0.3s;
+}
+.balloon.burst{
+    transform: scale(0);
+    opacity:0;
+}
+
+/* Stars */
+.star{
+    position:absolute;
+    color:yellow;
+    font-size:4vw;
+    animation:twinkle 2s infinite alternate;
+    z-index:0;
+}
+@keyframes twinkle{
+    0%{opacity:0.3;}
+    50%{opacity:1;}
+    100%{opacity:0.3;}
+}
+
+/* Confetti */
+.confetti{
+    position:absolute;
+    width:2vw;
+    height:2vw;
+    max-width:12px;
+    max-height:12px;
+    background-color:var(--color);
+    top:0;
+    animation:fall 3s forwards;
+    z-index:2;
+}
+@keyframes fall{
+    to{
+        transform: translate(var(--x), var(--y)) rotate(360deg);
+        opacity:0;
+    }
+}
+
+/* Fireworks canvas */
+canvas#fireworks{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:0;
+}
+</style>
+</head>
+<body>
+
+<h1>🎉 Happy Birthday 🎂</h1>
+<h2>Suma</h2>
+
+<img src="suma.jpg" alt="Suma Photo" class="main-photo">
+
+<p>Wishing you a wonderful birthday filled with happiness, smiles and beautiful moments. May your future be bright and joyful.</p>
+
+<button onclick="showMessage()">Open Surprise 🎁</button>
+
+<p id="secret">
+You are someone very special. Maybe I never say it, but I always wish your happiness. 💙
+</p>
+
+<audio autoplay loop>
+<source src="birthday.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Balloons -->
+<img src="https://cdn-icons-png.flaticon.com/512/3468/3468374.png" class="balloon" style="left:10%">
+<img src="https://cdn-icons-png.flaticon.com/512/3468/3468374.png" class="balloon" style="left:30%">
+<img src="https://cdn-icons-png.flaticon.com/512/3468/3468374.png" class="balloon" style="left:50%">
+<img src="https://cdn-icons-png.flaticon.com/512/3468/3468374.png" class="balloon" style="left:70%">
+<img src="https://cdn-icons-png.flaticon.com/512/3468/3468374.png" class="balloon" style="left:90%">
+
+<!-- Fireworks canvas -->
+<canvas id="fireworks"></canvas>
+
+<script>
+// Balloons floating animation
+const balloons = document.querySelectorAll('.balloon');
+balloons.forEach((b)=>{
+    const speed = 3 + Math.random()*2;
+    let bottom = -150;
+    setInterval(()=>{
+        bottom += speed;
+        if(bottom>window.innerHeight+150){ bottom=-150; }
+        b.style.bottom = bottom+'px';
+    },50);
+});
+
+// Add stars randomly
+for(let i=0;i<50;i++){
+    const star = document.createElement('div');
+    star.classList.add('star');
+    star.style.top = Math.random()*window.innerHeight+'px';
+    star.style.left = Math.random()*window.innerWidth+'px';
+    document.body.appendChild(star);
+}
+
+// Confetti function
+function createConfetti(){
+    for(let i=0;i<50;i++){
+        const conf = document.createElement('div');
+        conf.classList.add('confetti');
+        conf.style.setProperty('--color', `hsl(${Math.random()*360}, 100%, 50%)`);
+        conf.style.setProperty('--x', `${Math.random()*400-200}px`);
+        conf.style.setProperty('--y', `${window.innerHeight+Math.random()*200}px`);
+        document.body.appendChild(conf);
+        setTimeout(()=>{ conf.remove(); },3000);
+    }
+}
+
+// Show secret message + balloon burst + confetti + fireworks
+function showMessage(){
+    document.getElementById('secret').style.display='block';
+    balloons.forEach(b=> b.classList.add('burst'));
+    createConfetti();
+    launchFireworks();
+}
+
+// Fireworks
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function launchFireworks(){
+    for(let i=0;i<50;i++){
+        const x = Math.random()*canvas.width;
+        const y = Math.random()*canvas.height/2;
+        for(let j=0;j<30;j++){
+            particles.push({
+                x:x,
+                y:y,
+                dx:(Math.random()-0.5)*6,
+                dy:(Math.random()-0.5)*6,
+                color:`hsl(${Math.random()*360},100%,50%)`,
+                life:30
+            });
+        }
+    }
+    if(!fireworksRunning) animateFireworks();
+}
+let fireworksRunning = false;
+function animateFireworks(){
+    fireworksRunning = true;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach((p,i)=>{
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x,p.y,3,3);
+        p.x += p.dx;
+        p.y += p.dy;
+        p.dy += 0.05;
+        p.life--;
+        if(p.life<=0) particles.splice(i,1);
+    });
+    if(particles.length>0) requestAnimationFrame(animateFireworks);
+    else fireworksRunning=false;
+}
+
+// Resize canvas on window resize
+window.addEventListener('resize', ()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
+```
